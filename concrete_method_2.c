@@ -5,7 +5,7 @@ typedef enum {
   STATES_A = 0x0100,
   STATES_B,
   STATES_C
-} STATE_SECOND_e;
+} ;
 
 static void
 _action_a (state_machine_t* this, char* reason)
@@ -26,7 +26,7 @@ _action_c (state_machine_t* this, char* reason)
 }
 
 void
-DEMO_second_state_2_action (state_machine_t* this)
+SM_second_state_2_action (state_machine_t* this)
 {
   switch (this->current_state_) {
     case BEGIN:
@@ -47,13 +47,13 @@ DEMO_second_state_2_action (state_machine_t* this)
 }
 
 Bool
-DEMO_second_check_conditions (state_machine_t* this)
+SM_second_check_conditions (state_machine_t* this)
 {
-  if (BEGIN == this->State) {
-    return SM_set_new_state (this, STATES_A);
+  if (BEGIN == this->current_state_) {
+    return SM_set_new_state (this, (unsigned int)STATES_A);
   }
 
-  switch (this->State) {
+  switch (this->current_state_) {
     case STATES_A:
         return SM_set_new_state (this, STATES_B);
     case STATES_B:

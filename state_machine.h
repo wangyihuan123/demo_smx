@@ -30,13 +30,13 @@ typedef struct state_machine_s {
 
 } state_machine_t;
 
-#define LIST_STATE_MACHINE_APPEND(NAME)                              \
+#define APPEND_STATE_MACHINE_2_LIST(NAME)                              \
   {                                                               \
     state_machine_t* abstract;                                          \
                                                                   \
-    abstr = DEMO_add_state_machine (DEMO_##NAME##_state_2_action,      \
-                                  DEMO_##NAME##_check_conditions,  \
-                                  DEMO_##NAME##_get_state_name,    \
+    abstr = SM_add_state_machine (SM_##NAME##_state_2_action,      \
+                                  SM_##NAME##_check_conditions,  \
+                                  SM_##NAME##_get_state_name,    \
                                   this,                           \
                                   #NAME);                         \
     abstr->next = this->machines;                                 \
@@ -45,7 +45,7 @@ typedef struct state_machine_s {
   }
 
 state_machine_t *
-DEMO_add_state_machine (void (*state_2_action) (state_machine_t*),
+SM_add_state_machine (void (*state_2_action) (state_machine_t*),
                         Bool (*check_condition) (state_machine_t*),
     // char *(*concreteGetStatName) (int),
                         void *owner, char *name)
@@ -60,7 +60,7 @@ Bool
 STP_change_state (state_machine_t* this);
 
 Bool
-STP_hop_2_state (state_machine_t* this, unsigned int new_state);
+SM_set_new_state (state_machine_t* this, unsigned int new_state);
 
 #endif /* _STP_STATER_H__ */
 

@@ -1,10 +1,11 @@
-
+#include "state_machine.h"
+#include "lib.h"
 
 typedef enum {
   STATES_1 = 0x1000,
   STATES_2,
   STATES_3
-} STATE_FIRST_e;
+} ;
 
 
 static void
@@ -26,7 +27,7 @@ _action_3 (state_machine_t* this, char* reason)
 }
 
 void
-DEMO_first_state_2_action (state_machine_t* this)
+SM_first_state_2_action (state_machine_t* this)
 {
   switch (this->current_state_) {
     case BEGIN:
@@ -47,13 +48,13 @@ DEMO_first_state_2_action (state_machine_t* this)
 }
 
 Bool
-DEMO_first_check_conditions (state_machine_t* this)
+SM_first_check_conditions (state_machine_t* this)
 {
-  if (BEGIN == this->State) {
+  if (BEGIN == this->current_state_) {
     return SM_set_new_state (this, STATES_1);
   }
 
-  switch (this->State) {
+  switch (this->current_state_) {
     case STATES_1:
       return SM_set_new_state (this, STATES_2);
     case STATES_2:

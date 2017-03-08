@@ -12,24 +12,21 @@ typedef struct property_t {
 
   int               property_index;
   char*             property_name;
-
-  /* per Port state machines */
-  state_machine_t*     info;      /* 17.21 */
-
-
-  state_machine_t*     machines; /* list of machines */
-
-  struct stpm_t*    owner; /* Bridge, that this port belongs to */
-
-  /* fixed port Timers */
-  PROPERTY_TIMER_T      fdWhile;      /* 17.15.1 */
-
-
-  PROPERTY_TIMER_T*     timers[TIMERS_NUMBER]; /*list of timers */
-
   unsigned long     uptime;       /* 14.8.2.1.3.a */
 
-} PORT_T;
+
+  struct MODULE_T *    owner;
+
+  state_machine_t*     s_state_machine;  //  static state machine for furture use
+  state_machine_t*     machines; /* list of machines */
+
+  PROPERTY_TIMER_T      Timer1;
+  PROPERTY_TIMER_T      Timer2;
+  PROPERTY_TIMER_T*     timers[TIMERS_NUMBER]; // list of timers
+
+
+
+} PROPERTY_T;
 
 
 #endif //DEMO_SMX_PROPERTY_H

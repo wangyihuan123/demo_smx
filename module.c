@@ -56,6 +56,13 @@ _iterate_state_machines_change_state (MODULE_T* this,
   return mret;
 }
 
+MOD_T *
+MLD_add (char* name) {
+  MOD_T * this;
+
+  LIST_STATE_MACHINE_APPEND(this, STPM_T, mst_bridges, "stp instance");
+}
+
 int
 MLD_update (MODULE_T* this) /* returns number of loops */
 {
