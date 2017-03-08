@@ -1,11 +1,19 @@
-
-static int
-_init_machine (state_machine_t* this)
-{
-  this->State = BEGIN;
-  (*(this->state_2_action)) (this);
-  return 0;
-}
+/******************************************************************************
+ *
+ * class module
+ * Each module contains multiple property,
+ * each property can have a list of state machines.
+ * The module is updated every second to fresh all the state machine in this
+ * module.
+ *
+ *****************************************************************************/
+//static int
+//_init_machine (state_machine_t* this)
+//{
+//  this->State = BEGIN;
+//  (*(this->state_2_action)) (this);
+//  return 0;
+//}
 
 static int
 _iterate_machines (MODULE_T* this,
@@ -31,7 +39,7 @@ _iterate_machines (MODULE_T* this,
 }
 
 int
-DEMO_update (MODULE_T* this) /* returns number of loops */
+MLD_update (MODULE_T* this) /* returns number of loops */
 {
   register Bool     need_state_change;
   register int      number_of_loops = 0;
@@ -51,14 +59,13 @@ DEMO_update (MODULE_T* this) /* returns number of loops */
     number_of_loops += _iterate_machines (this,
                                           DEMO_change_state,
                                           False);
-
   }
 
   return number_of_loops;
 }
 
 void
-DEMO_one_second (MODULE_T* param)
+MDL_one_second (MODULE_T* param)
 {
   MODULE_T*           this = (MODULE_T*) param;
   register PROPERTY_T*  property;
@@ -76,6 +83,5 @@ DEMO_one_second (MODULE_T* param)
   }
 
   DEMO_update (this);
-
 
 }
