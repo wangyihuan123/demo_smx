@@ -55,8 +55,8 @@ typedef struct stpm_t {
   struct port_t*        ports;
 
   /* The only "per bridge" state machine */
-  STATE_MACH_T*         rolesel;   /* the Port Role Selection State machione: 17.22 */
-  STATE_MACH_T*         machines;
+  state_machine_t*         rolesel;   /* the Port Role Selection State machione: 17.22 */
+  state_machine_t*         machines;
 
   /* variables */
   PROTOCOL_VERSION_T    ForceVersion;   /* 17.12, 17.16.1 */

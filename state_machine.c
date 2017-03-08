@@ -63,7 +63,7 @@ SM_change_state (state_machine_t* this)
 }
 
 Bool
-SM_set_state (state_machine_t* this, unsigned int new_state)
+SM_set_new_state (state_machine_t* this, unsigned int new_state)
 {
 //  switch (this->state_machine_type) {
 //#if 0

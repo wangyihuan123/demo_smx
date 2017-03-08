@@ -32,9 +32,9 @@ typedef struct state_machine_s {
 
 #define LIST_STATE_MACHINE_APPEND(NAME)                              \
   {                                                               \
-    STATE_MACH_T* abstract;                                          \
+    state_machine_t* abstract;                                          \
                                                                   \
-    abstr = DEMO_add_state_machine (DEMO_##NAME##_enter_state,      \
+    abstr = DEMO_add_state_machine (DEMO_##NAME##_state_2_action,      \
                                   DEMO_##NAME##_check_conditions,  \
                                   DEMO_##NAME##_get_state_name,    \
                                   this,                           \
@@ -51,16 +51,16 @@ DEMO_add_state_machine (void (*state_2_action) (state_machine_t*),
                         void *owner, char *name)
                      
 void
-STP_state_mach_delete (STATE_MACH_T* this);
+STP_state_mach_delete (state_machine_t* this);
 
 Bool
-STP_check_condition (STATE_MACH_T* this);
+STP_check_condition (state_machine_t* this);
 
 Bool
-STP_change_state (STATE_MACH_T* this);
+STP_change_state (state_machine_t* this);
 
 Bool
-STP_hop_2_state (STATE_MACH_T* this, unsigned int new_state);
+STP_hop_2_state (state_machine_t* this, unsigned int new_state);
 
 #endif /* _STP_STATER_H__ */
 

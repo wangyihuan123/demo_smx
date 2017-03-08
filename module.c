@@ -16,23 +16,41 @@
 //}
 
 static int
-_iterate_machines (MODULE_T* this,
-                   int (*iter_callb) (state_machine_t*),
-                   Bool exit_on_non_zero_ret)
+_iterate_state_machines_check_condition (MODULE_T* this,
+                   int (*iterator_callback) (state_machine_t*))
 {
-  register state_machine_t* stater;
-  register PROPERTY_T*       property;
-  int                    iret, mret = 0;
+  register state_machine_t* p_state_machine;
+  register PROPERTY_T*       property = this->ports;
+  int                    iret = 0;
 
-  /* state machines per property */
-  for (property = this->ports; property; property = property->next) {
-    for (stater = property->machines; stater; stater = stater->next) {
-      iret = (*iter_callb) (stater);
-      if (exit_on_non_zero_ret && iret)
+  while (property) {
+    while (++counter < TIMERS_NUMBER) {
+      iret = (*iterator_callback) (p_state_machine);
+      if (iret)
         return iret;
-      else
-        mret += iret;
+      p_state_machine = p_state_machine->next;  // loop the list of state_machine
     }
+    property = property->next;  // loop the list of property
+  }
+
+  return iret;
+}
+
+
+static int
+_iterate_state_machines_change_state (MODULE_T* this,
+                         int (*iterator_callback) (state_machine_t*))
+{
+  register state_machine_t* p_state_machine;
+  register PROPERTY_T*       property = this->ports;
+  int                    mret = 0;
+
+  while (property) {
+    while (++counter < TIMERS_NUMBER) {
+      mret += (*iterator_callback) (p_state_machine);
+      p_state_machine = p_state_machine->next;  // loop the list of state_machine
+    }
+    property = property->next;  // loop the list of property
   }
 
   return mret;
@@ -41,47 +59,45 @@ _iterate_machines (MODULE_T* this,
 int
 MLD_update (MODULE_T* this) /* returns number of loops */
 {
-  register Bool     need_state_change;
-  register int      number_of_loops = 0;
+  register Bool     need_2_change_state;
+  register int      number_of_change = 0;
 
-  need_state_change = False;
+  need_2_change_state = False;
 
-  for (;;) {/* loop until not need changes */
-    need_state_change = _iterate_machines (this,
-                                           DEMO_check_condition,
-                                           True);
+  do {
+    need_2_change_state =
+        _iterate_state_machines_check_condition (this,
+                                                 SM_check_condition);
+    if (! need_2_change_state)
+      break;
 
-    if (! need_state_change) return number_of_loops;
+    number_of_change = _iterate_state_machines_change_state (this,
+                                             SM_change_state);
+  } while (TRUE);
 
-    number_of_loops++;
-    /* here we know, that at least one stater must be
-       updated (it has changed state) */
-    number_of_loops += _iterate_machines (this,
-                                          DEMO_change_state,
-                                          False);
-  }
-
-  return number_of_loops;
+  return number_of_change;
 }
 
 void
 MDL_one_second (MODULE_T* param)
 {
   MODULE_T*           this = (MODULE_T*) param;
-  register PROPERTY_T*  property;
-  register int      iii;
+  register PROPERTY_T*  property = this->ports;
+  register int      counter = 0;
 
-//  if (DEMO_ENABLED != this->admin_state) return;
-
-  for (property = this->ports; property; property = property->next) {
-    for (iii = 0; iii < TIMERS_NUMBER; iii++) {
-      if (*(property->timers[iii]) > 0) {
-        (*property->timers[iii])--;
+  property = this->ports;
+  while (property) {
+    while (++counter < TIMERS_NUMBER) {
+      if (*(property->timers[counter]) > 0) {
+        (*property->timers[counter])--;
       }
     }
     property->uptime++;
+
+    // loop the list of property
+    property = property->next;
   }
 
-  DEMO_update (this);
+  MDL_update (this);
 
 }

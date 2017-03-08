@@ -16,7 +16,7 @@
 #define DEFAULT_LINK_DELAY  3
 
 void
-STP_edge_enter_state (STATE_MACH_T *s)
+STP_edge_enter_state (state_machine_t *s)
 {
   register PORT_T *port = s->owner.port;
 
@@ -53,27 +53,27 @@ STP_edge_enter_state (STATE_MACH_T *s)
 }
 
 Bool
-STP_edge_check_conditions (STATE_MACH_T *s)
+STP_edge_check_conditions (state_machine_t *s)
 {
   register PORT_T *port = s->owner.port;
 
   switch (s->State) {
     case BEGIN:
-      return STP_hop_2_state (s, DISABLED);
+      return SM_set_new_state (s, DISABLED);
     case DISABLED:
       if (port->adminEnable) {
-        return STP_hop_2_state (s, DETECTED);
+        return SM_set_new_state (s, DETECTED);
       }
       break;
     case DETECTED:
-      return STP_hop_2_state (s, DELEAYED);
+      return SM_set_new_state (s, DELEAYED);
     case DELEAYED:
       if (port->wasInitBpdu) {
 #ifdef STP_DBG
         if (s->debug)
             stp_trace ("port %s 'edge' resolved by BPDU", port->port_name);
 #endif        
-        return STP_hop_2_state (s, RESOLVED);
+        return SM_set_new_state (s, RESOLVED);
       }
 
       if (! port->lnkWhile)  {
@@ -81,19 +81,19 @@ STP_edge_check_conditions (STATE_MACH_T *s)
         if (s->debug)
           stp_trace ("port %s 'edge' resolved by timer", port->port_name);
 #endif        
-        return STP_hop_2_state (s, RESOLVED);
+        return SM_set_new_state (s, RESOLVED);
       }
 
       if (! port->adminEnable) {
-        return STP_hop_2_state (s, DISABLED);
+        return SM_set_new_state (s, DISABLED);
       }
       break;
     case RESOLVED:
       if (! port->adminEnable) {
-        return STP_hop_2_state (s, DISABLED);
+        return SM_set_new_state (s, DISABLED);
       }
       if (port->checkEdge) {
-      	return STP_hop_2_state (s, DETECTED);
+      	return SM_set_new_state (s, DETECTED);
       }
       break;
   }
