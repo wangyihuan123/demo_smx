@@ -10,7 +10,7 @@
 //static int
 //_init_machine (state_machine_t* this)
 //{
-//  this->State = BEGIN;
+//  this->current_state_ = BEGIN;
 //  (*(this->state_2_action)) (this);
 //  return 0;
 //}
@@ -24,7 +24,7 @@ _iterate_state_machines_check_condition (MODULE_T* this,
   int                    iret = 0;
 
   while (property) {
-    while (++counter < TIMERS_NUMBER) {
+    while (p_state_machine) {
       iret = (*iterator_callback) (p_state_machine);
       if (iret)
         return iret;
@@ -41,12 +41,12 @@ static int
 _iterate_state_machines_change_state (MODULE_T* this,
                          int (*iterator_callback) (state_machine_t*))
 {
-  register state_machine_t* p_state_machine;
   register PROPERTY_T*       property = this->ports;
+  register state_machine_t* p_state_machine = property->machines;
   int                    mret = 0;
 
   while (property) {
-    while (++counter < TIMERS_NUMBER) {
+    while (p_state_machine) {
       mret += (*iterator_callback) (p_state_machine);
       p_state_machine = p_state_machine->next;  // loop the list of state_machine
     }

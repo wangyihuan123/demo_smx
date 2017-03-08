@@ -23,7 +23,7 @@ typedef struct state_machine_s {
 //  // char*         (* concreteGetStatName) (int);
 //  union {
 //    struct stpm_t* stpm;
-//    struct port_t* port;
+//    struct property_t* port;
 //    void         * owner;
 //  } owner;
   char          state_machine_type; /* 0=unknown,1=property,2=module */

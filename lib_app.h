@@ -52,7 +52,7 @@ typedef enum {/* 17.12, 17.16.1 */
 typedef struct stpm_t {
   struct stpm_t*        next;
 
-  struct port_t*        ports;
+  struct property_t*        ports;
 
   /* The only "per bridge" state machine */
   state_machine_t*         rolesel;   /* the Port Role Selection State machione: 17.22 */
@@ -125,6 +125,6 @@ int
 STP_stpm_check_bridge_priority (STPM_T* this);
 
 const char*
-STP_stpm_get_port_name_by_id (STPM_T* this, PORT_ID port_id);
+STP_stpm_get_property_name_by_id (STPM_T* this, PORT_ID property_id);
   
 #endif /* _STP_MACHINE_H__ */
