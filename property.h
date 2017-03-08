@@ -12,13 +12,13 @@ typedef struct property_t {
 
   int               property_index;
   char*             property_name;
-  unsigned long     uptime;       /* 14.8.2.1.3.a */
+  unsigned long     uptime;
 
 
   struct MODULE_T *    owner;
 
   state_machine_t*     s_state_machine;  //  static state machine for furture use
-  state_machine_t*     machines; /* list of machines */
+  state_machine_t*     machines; // list of machines
 
   PROPERTY_TIMER_T      Timer1;
   PROPERTY_TIMER_T      Timer2;

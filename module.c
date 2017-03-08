@@ -19,9 +19,9 @@ static int
 _iterate_state_machines_check_condition (MODULE_T* this,
                    int (*iterator_callback) (state_machine_t*))
 {
-  register state_machine_t* p_state_machine;
-  register PROPERTY_T*       property = this->ports;
-  int                    iret = 0;
+  register state_machine_t*   p_state_machine;
+  register PROPERTY_T*        property = this->properties;
+  int                         iret = 0;
 
   while (property) {
     while (p_state_machine) {
@@ -41,9 +41,9 @@ static int
 _iterate_state_machines_change_state (MODULE_T* this,
                          int (*iterator_callback) (state_machine_t*))
 {
-  register PROPERTY_T*       property = this->ports;
-  register state_machine_t* p_state_machine = property->machines;
-  int                    mret = 0;
+  register PROPERTY_T*        property = this->properties;
+  register state_machine_t*   p_state_machine = property->machines;
+  int                         mret = 0;
 
   while (property) {
     while (p_state_machine) {
@@ -60,7 +60,7 @@ MOD_T *
 MLD_add (char* name) {
   MOD_T * this;
 
-  LIST_STATE_MACHINE_APPEND(this, STPM_T, mst_bridges, "stp instance");
+  LIST_STATE_MACHINE_APPEND(this, MODULE_T, mst_bridges, "stp instance");
 }
 
 int
@@ -85,14 +85,15 @@ MLD_update (MODULE_T* this) /* returns number of loops */
   return number_of_change;
 }
 
+// one second time out trigger by event callback
 void
-MDL_one_second (MODULE_T* param)
+MDL_time_out (MODULE_T* event_handle_param)
 {
-  MODULE_T*           this = (MODULE_T*) param;
-  register PROPERTY_T*  property = this->ports;
+  MODULE_T*           this = (MODULE_T*) event_handle_param;
+  register PROPERTY_T*  property = this->properties;
   register int      counter = 0;
 
-  property = this->ports;
+  property = this->properties;
   while (property) {
     while (++counter < TIMERS_NUMBER) {
       if (*(property->timers[counter]) > 0) {
@@ -106,5 +107,19 @@ MDL_one_second (MODULE_T* param)
   }
 
   MDL_update (this);
+}
+
+// TODO: not finished!!
+void
+MLD_remove (MODULE_T* this) {
+
+//  while () {
+//    // loop and remove all the state machine
+//  }
+
+//  while () {
+//    // remove all the properties
+//  }
+
 
 }

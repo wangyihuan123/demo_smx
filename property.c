@@ -5,7 +5,7 @@
 PROPERTY_T *
 property_add (MOD_T* module, int property_id)
 {
-  PROPERTY_T*      this = module->ports;
+  PROPERTY_T*      this = module->properties;
 
   /* search for existed port */
   while (this) {
@@ -15,7 +15,7 @@ property_add (MOD_T* module, int property_id)
       this = this->next;
   }
 
-  NEW_IN_LIST(this, PROPERTY_T, module->ports, "add property");
+  NEW_IN_LIST(this, PROPERTY_T, module->properties, "add property");
 
   sprintf(this->property_name, "p%02d", (int) property_id);
   this->uptime = 0;
@@ -35,35 +35,38 @@ property_add (MOD_T* module, int property_id)
   return this;
 }
 
-
 void
-property_add (PROPERTY_T * this)
+property_remove (PROPERTY_T * this)
 {
-  MOD_T*                   stpm = this->owner;;
-  register PORT_T*          prev;
-  register PORT_T*          tmp;
-  register STATE_MACH_T*    stater;
-  register void*            pv;
+
+  MOD_T*                    module = this->owner;
+  register void*            pointer_reserve;
+  register PROPERTY_T*          p_prev_property, p_tmp_property;
+  register state_machine_t*    p_state_machine = this->machines;
 
   free (this->property_name);
 
-  for (stater = this->machines; stater; ) {
-    pv = (void*) stater->next;
-    STP_state_mach_delete (stater);
-    stater = (STATE_MACH_T*) pv;
+  while (p_state_machine) {
+    pointer_reserve = (void*) p_state_machine->next;
+    SM_remove_state_machine (p_state_machine);
+    p_state_machine = (state_machine_t*) pointer_reserve;
   }
 
-  prev = NULL;
-  for (tmp = stpm->ports; tmp; tmp = tmp->next) {
-    if (tmp->port_index == this->port_index) {
-      if (prev) {
-        prev->next = this->next;
+  p_prev_property = NULL;
+  p_tmp_property = module->properties;
+  while (p_tmp_property) {
+    // search the property in the list
+    if (p_tmp_property->property_id == this->property_id) {
+      if (p_prev_property) {
+        p_prev_property->next = this->next;
       } else {
-        stpm->ports = this->next;
+        module->properties = this->next;
       }
-      MY_FREE(this, "stp instance");
+      MY_FREE(this);
       break;
     }
-    prev = tmp;
+    p_prev_property = p_tmp_property;
+    p_tmp_property = p_tmp_property->next;
   }
+
 }
