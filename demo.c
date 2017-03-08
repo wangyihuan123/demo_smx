@@ -1,60 +1,55 @@
-#include "base.h"
-#include "statmch.h"
-#include "mstp_lib_statmch.h"
-#include "stpm.h"
+#include "lib.h"
+#include "state_machine.h"
 
-
-STATE_MACH_T *
-DEMO_state_mach_create (void (*concreteEnterState) (STATE_MACH_T*),
-                       Bool (*concreteCheckCondition) (STATE_MACH_T*),
-                       char *(*concreteGetStatName) (int),
+state_machine_t *
+DEMO_add_state_machine (void (*state_2_action) (state_machine_t*),
+                       Bool (*check_condition) (state_machine_t*),
+                       // char *(*concreteGetStatName) (int),
                        void *owner, char *name)
 {
-  STATE_MACH_T *this;
+  state_machine_t *this;
 
-  MY_MALLOC(this, STATE_MACH_T, "state machine");
+  MY_NEW( this, 
+          state_machine_t,
+          name);
  
-  this->State = BEGIN;
+  this->current_state_ = BEGIN;
   this->name = (char*) strdup (name);
-  this->changeState = False;
-  this->concreteEnterState = concreteEnterState;
-  this->concreteCheckCondition = concreteCheckCondition;
-  this->concreteGetStatName = concreteGetStatName;
-  this->owner.owner = owner;
+  this->change_state_ = False;
+  this->state_2_action = state_2_action;
+  this->check_condition = check_condition;
 
   return this;
 }
-                              
+
 void
-DEMO_state_mach_delete (STATE_MACH_T *this)
+DEMO_remove_state_machine (state_machine_t *this)
 {
-  MY_FREE(this, "state machine");
+  MY_FREE(this);
 }
 
 Bool
-DEMO_check_condition (STATE_MACH_T* this)
+DEMO_check_condition (state_machine_t* this)
 {
   Bool bret;
-
-
-
-  bret = (*(this->concreteCheckCondition)) (this);
+  
+  bret = (*(this->check_condition)) (this);
   if (bret) {
-    this->changeState = True;
+    this->change_state_ = True;
   }
   
   return bret;
 }
         
 Bool
-DEMO_change_state (STATE_MACH_T* this)
+DEMO_change_state (state_machine_t* this)
 {
   register int number_of_loops;
 
   for (number_of_loops = 0; ; number_of_loops++) {
-    if (! this->changeState) return number_of_loops;
-    (*(this->concreteEnterState)) (this);
-    this->changeState = False;
+    if (! this->change_state_) return number_of_loops;
+    (*(this->state_2_action)) (this);
+    this->change_state_ = False;
     DEMO_check_condition (this);
   }
 
@@ -62,10 +57,10 @@ DEMO_change_state (STATE_MACH_T* this)
 }
 
 Bool
-DEMO_hop_2_state (STATE_MACH_T* this, unsigned int new_state)
+DEMO_set_state (state_machine_t* this, unsigned int new_state)
 {
 
-  switch (this->state_mach_type) {
+  switch (this->state_machine_type) {
 #if 0
     case 2:
       if (mst_print_debug_msg_ok(0)) {
@@ -74,8 +69,8 @@ DEMO_hop_2_state (STATE_MACH_T* this, unsigned int new_state)
         }
         break;
     case 1:
-       if (mst_print_debug_msg_ok(this->owner.port)) {
-          printf("%s(%s): %s=>%s\n",this->name,*this->owner.port->owner->name ? this->owner.port->owner->name : "Glbl",
+       if (mst_print_debug_msg_ok(this->owner.property)) {
+          printf("%s(%s): %s=>%s\n",this->name,*this->owner.property->owner->name ? this->owner.property->owner->name : "Glbl",
             (*(this->concreteGetStatName)) (this->State),(*(this->concreteGetStatName)) (new_state));
         }
         break;
@@ -83,129 +78,7 @@ DEMO_hop_2_state (STATE_MACH_T* this, unsigned int new_state)
   }
 
   this->State = new_state;
-  this->changeState = True;
+  this->change_state_ = True;
   return True;
 }
 
-
-#if 0
-
-void mst_statmch_enter_state_print_info(STATE_MACH_T *this)
-{
-
-  switch (this->state_mach_type) {
-  case 2:
-    if (mst_print_debug_msg_ok(0)) {
-      printf("%s(%s):[Enter]=>%s\n",this->name,*this->owner.stpm->name?this->owner.stpm->name :"Glbl",(*(this->concreteGetStatName))(this->State));
-    }
-    break;
-  case 1:
-    if (mst_print_debug_msg_ok(this->owner.port)) {
-      printf("%s(%s):[Enter]=>%s\n",this->name,*this->owner.port->owner->name ? this->owner.port->owner->name : "Glbl",(*(this->concreteGetStatName))(this->State));
-      }
-      break;
-  }
-   
-}
-
-#endif 
-
-static int
-_init_machine (STATE_MACH_T* this)
-{
-  this->State = BEGIN;
-  (*(this->concreteEnterState)) (this);
-  return 0;
-}
-
-static int
-_iterate_machines (STPM_T* this,
-                           int (*iter_callb) (STATE_MACH_T*),
-                           Bool exit_on_non_zero_ret)
-{
-  register STATE_MACH_T* stater;
-  register PORT_T*       port;
-  int                    iret, mret = 0;
-
-
-  /* state machines per bridge */
-  for (stater = this->machines; stater; stater = stater->next) {
-    iret = (*iter_callb) (stater);
-    if (exit_on_non_zero_ret && iret)
-      return iret;
-    else
-      mret += iret;
-  }
-
-  /* state machines per port */
-  for (port = this->ports; port; port = port->next) {
-    for (stater = port->machines; stater; stater = stater->next) {
-      iret = (*iter_callb) (stater);
-      if (exit_on_non_zero_ret && iret) 
-        return iret;
-      else
-        mret += iret;
-    }
-  }
-  
-  return mret;
-}
-
-
-
-int
-DEMO_update (STPM_T* this) /* returns number of loops */
-{
-  register Bool     need_state_change;
-  register int      number_of_loops = 0;
-
-  need_state_change = False; 
-  
-  for (;;) {/* loop until not need changes */
-    need_state_change = _stp_stpm_iterate_machines (this,
-                                                   DEMO_check_condition,
-                                                   True);
-
-    if (! need_state_change) return number_of_loops;
-
-    number_of_loops++;
-    /* here we know, that at least one stater must be
-       updated (it has changed state) */
-    number_of_loops += _stp_stpm_iterate_machines (this,
-                                                  DEMO_change_state,
-                                                  False);
-
-  }
-
-  return number_of_loops;
-}
-
-void
-DEMO_one_second (STPM_T* param)
-{
-  STPM_T*           this = (STPM_T*) param;
-  register PORT_T*  port;
-  register int      iii;
-
-  if (DEMO_ENABLED != this->admin_state) return;
-
-  for (port = this->ports; port; port = port->next) {
-    for (iii = 0; iii < TIMERS_NUMBER; iii++) {
-      if (*(port->timers[iii]) > 0) {
-        (*port->timers[iii])--;
-      }
-    }    
-    port->uptime++;
-  }
-
-  DEMO_stpm_update (this);
-
-  this->Topo_Change = _check_topoch (this);
-  if (this->Topo_Change) {
-    this->Topo_Change_Count++;
-    this->timeSince_Topo_Change = 0;
-  } else {
-    this->Topo_Change_Count = 0;
-    this->timeSince_Topo_Change++;
-  }
-}

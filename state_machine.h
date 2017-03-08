@@ -25,57 +25,53 @@
 #ifndef _STP_STATER_H__
 #define _STP_STATER_H__
 
-#define BEGIN  9999 /* distinct from any valid state */
+#define BEGIN  -1 /* distinct from any valid state */
 
-typedef struct state_mach_t {
-  struct state_mach_t* next;
+typedef struct state_machine_s {
+  struct state_machine_s* next;
 
-#ifndef SLR_STP_CODE
-  char*         name; /* for debugging */
-#else
   char          name[NAME_LEN];
-#endif
 
-#ifdef STP_DBG
-  char          debug; /* 0- no dbg, 1 - port, 2 - stpm */
-  unsigned int  ignoreHop2State;
-#endif
 
-  Bool          changeState;
-  unsigned int  State;
+//#ifdef STP_DBG
+//  char          debug; /* 0- no dbg, 1 - port, 2 - stpm */
+//  unsigned int  ignoreHop2State;
+//#endif
 
-  void          (* concreteEnterState) (struct state_mach_t * );
-  Bool          (* concreteCheckCondition) (struct state_mach_t * );
-  char*         (* concreteGetStatName) (int);
-  union {
-    struct stpm_t* stpm;
-    struct port_t* port;
-    void         * owner;
-  } owner;
-  char          state_mach_type; /* 0=unknown,1=port,2=stpm */
+  Bool          change_state_;
+  unsigned int  current_state_;
 
-} STATE_MACH_T;
+  void          (* state_2_action) (struct state_machine_s * );
+  Bool          (* check_condition) (struct state_machine_s * );
+//  // char*         (* concreteGetStatName) (int);
+//  union {
+//    struct stpm_t* stpm;
+//    struct port_t* port;
+//    void         * owner;
+//  } owner;
+  char          state_machine_type; /* 0=unknown,1=property,2=module */
 
-#define STP_STATE_MACH_IN_LIST(WHAT)                              \
+} state_machine_t;
+
+#define LIST_STATE_MACHINE_APPEND(NAME)                              \
   {                                                               \
-    STATE_MACH_T* abstr;                                          \
+    STATE_MACH_T* abstract;                                          \
                                                                   \
-    abstr = STP_state_mach_create (STP_##WHAT##_enter_state,      \
-                                  STP_##WHAT##_check_conditions,  \
-                                  STP_##WHAT##_get_state_name,    \
+    abstr = DEMO_add_state_machine (DEMO_##NAME##_enter_state,      \
+                                  DEMO_##NAME##_check_conditions,  \
+                                  DEMO_##NAME##_get_state_name,    \
                                   this,                           \
-                                  #WHAT);                         \
+                                  #NAME);                         \
     abstr->next = this->machines;                                 \
     this->machines = abstr;                                       \
-    this->WHAT = abstr;                       \
+    this->NAME = abstr;                       \
   }
 
-
-STATE_MACH_T *
-STP_state_mach_create (void (* concreteEnterState) (STATE_MACH_T*),
-                       Bool (* concreteCheckCondition) (STATE_MACH_T*),
-                       char * (* concreteGetStatName) (int),
-                       void* owner, char* name);
+state_machine_t *
+DEMO_add_state_machine (void (*state_2_action) (state_machine_t*),
+                        Bool (*check_condition) (state_machine_t*),
+    // char *(*concreteGetStatName) (int),
+                        void *owner, char *name)
                      
 void
 STP_state_mach_delete (STATE_MACH_T* this);
