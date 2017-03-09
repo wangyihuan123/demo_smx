@@ -1,5 +1,5 @@
 #include "state_machine.h"
-#include "lib.h"
+
 
 typedef enum {
   STATES_A = 0x0100,

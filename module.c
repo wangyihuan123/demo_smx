@@ -1,3 +1,6 @@
+#include "state_machine.h"
+#include "property.h"
+#include "module.h"
 /******************************************************************************
  *
  * class module
@@ -7,16 +10,9 @@
  * module.
  *
  *****************************************************************************/
-//static int
-//_init_machine (state_machine_t* this)
-//{
-//  this->current_state_ = BEGIN;
-//  (*(this->state_2_action)) (this);
-//  return 0;
-//}
 
 static int
-_iterate_state_machines_check_condition (MODULE_T* this,
+_iterate_state_machines_check_condition (MOD_T * this,
                    int (*iterator_callback) (state_machine_t*))
 {
   register state_machine_t*   p_state_machine;
@@ -38,7 +34,7 @@ _iterate_state_machines_check_condition (MODULE_T* this,
 
 
 static int
-_iterate_state_machines_change_state (MODULE_T* this,
+_iterate_state_machines_change_state (MOD_T * this,
                          int (*iterator_callback) (state_machine_t*))
 {
   register PROPERTY_T*        property = this->properties;
@@ -56,15 +52,15 @@ _iterate_state_machines_change_state (MODULE_T* this,
   return mret;
 }
 
+// TODO: not finished!!
 MOD_T *
 MLD_add (char* name) {
-  MOD_T * this;
 
-  LIST_STATE_MACHINE_APPEND(this, MODULE_T, mst_bridges, "stp instance");
+//  LIST_STATE_MACHINE_APPEND
 }
 
 int
-MLD_update (MODULE_T* this) /* returns number of loops */
+MLD_update (MOD_T* this) /* returns number of loops */
 {
   register Bool     need_2_change_state;
   register int      number_of_change = 0;
@@ -80,16 +76,16 @@ MLD_update (MODULE_T* this) /* returns number of loops */
 
     number_of_change = _iterate_state_machines_change_state (this,
                                              SM_change_state);
-  } while (TRUE);
+  } while (1);
 
   return number_of_change;
 }
 
 // one second time out trigger by event callback
 void
-MDL_time_out (MODULE_T* event_handle_param)
+MDL_time_out (MOD_T* event_handle_param)
 {
-  MODULE_T*           this = (MODULE_T*) event_handle_param;
+  MOD_T*           this = (MOD_T*) event_handle_param;
   register PROPERTY_T*  property = this->properties;
   register int      counter = 0;
 
@@ -111,7 +107,7 @@ MDL_time_out (MODULE_T* event_handle_param)
 
 // TODO: not finished!!
 void
-MLD_remove (MODULE_T* this) {
+MLD_remove (MOD_T* this) {
 
 //  while () {
 //    // loop and remove all the state machine

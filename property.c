@@ -1,13 +1,14 @@
-
-
-
+#include "property.h"
+#include "module.h"
+#include "method_1.h"
+#include "method_2.h"
 
 PROPERTY_T *
 property_add (MOD_T* module, int property_id)
 {
   PROPERTY_T*      this = module->properties;
 
-  /* search for existed port */
+  // search for existed port */
   while (this) {
     if (this->property_id == property_id)
       return NULL;
@@ -21,7 +22,7 @@ property_add (MOD_T* module, int property_id)
   this->uptime = 0;
   this->property_id = property_id;
   this->machines = NULL;
-  this->owner = stpm;
+  this->owner = module;
 
   // append state machines
   APPEND_STATE_MACHINE_2_LIST(first);

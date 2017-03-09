@@ -1,6 +1,6 @@
 
-#ifndef _STP_BASE_H__
-#define _STP_BASE_H__
+#ifndef DEMO_SMX_LIB_H
+#define DEMO_SMX_LIB_H
 
 #include <stdlib.h>
 #include <string.h>
@@ -14,7 +14,6 @@
 extern char* strdup (const char *s);
 #else
 // TODO: try other OS later
-#  include <psos.h>
 #endif
 
 #ifndef Bool
